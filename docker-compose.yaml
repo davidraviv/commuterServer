@@ -1,0 +1,27 @@
+version: '3.9'
+
+services:
+  # Mongodb service
+  mongo_db:
+    container_name: mongo-db
+    image: mongo:latest
+    restart: always
+    volumes:
+      - mongo_data:/data/db
+
+  # Node service
+  commuter-server:
+    container_name: commuter-server
+    build: .
+    ports:
+      # local->container
+      - 4000:3000
+    environment:
+      PORT: 3000
+      MONGODB_URI: mongodb://mongo_db:27017
+      DB_NAME: mot-gov-il
+    depends_on: 
+      - mongo_db
+
+volumes:
+  mongo_data: {}
