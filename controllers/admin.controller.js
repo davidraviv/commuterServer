@@ -21,8 +21,8 @@ const loadStations = async (req, res, next) => {
   // verify that the station csv file exists
   if (fs.existsSync(csvFilePath)) {
     try {
-      // drop old stations collection
-      await Station.collection.drop();
+      // delete all documents from stations collection
+      Station.deleteMany({});
       console.log('Old collection dropped');
     } catch (err) {
       if (err.code === 26) {
