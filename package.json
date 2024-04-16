@@ -8,12 +8,13 @@
     "start": "node app.js",
     "dev": "nodemon app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "docker build -t commuter-server ."
+    "build": "docker build -t commuter-server .",
+    "docker-run": "docker compose down ; docker rmi commuterserver-commuter-server ; docker-compose up"
   },
   "dependencies": {
     "csv-parser": "^3.0.0",
     "dotenv": "^16.4.5",
-    "express": "~4.19.2",
+    "express": ">=4.19.2",
     "express-rate-limit": "^7.2.0",
     "fs": "^0.0.1-security",
     "http-errors": "^2.0.0",
