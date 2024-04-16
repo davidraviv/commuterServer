@@ -54,15 +54,15 @@ const loadStations = async (req, res, next) => {
       // create GeoJSON point from lat/lon
       const location = {
         type: 'Point',
-        coordinates: [data.lon, data.lat]
+        coordinates: [data.stop_lon, data.stop_lat]
       };
       
       // create station document
       const station = new Station({
         stop_id: data.stop_id,
-        code: data.code,
-        name: data.name,
-        description: data.description,
+        code: data.stop_code,
+        name: data.stop_name,
+        description: data.stop_desc,
         location,
         parent_station: data.parent_station,
         zone_id: data.zone_id
