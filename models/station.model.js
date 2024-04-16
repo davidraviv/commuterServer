@@ -13,13 +13,16 @@ const stationSchema = new Schema({
       default: 'Point'
     },
     coordinates: {
-      type: [Number],
-      index: '2dsphere'
-    }
+      type: [Number]
+    },
+    // index: '2dsphere'
   },
   parent_station: String,
   zone_id: String
 });
 
+stationSchema.index({location: '2dsphere'});
+
 const Station = mongoose.model('station', stationSchema);
+
 module.exports = Station;
