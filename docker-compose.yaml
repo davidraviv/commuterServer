@@ -24,6 +24,8 @@ services:
       DB_NAME: mot-gov-il
     depends_on: 
       - mongo_db
+    volumes:
+      - /Users/david/dev/commuterServer/data:/data
 
 volumes:
   mongo_data: {}

@@ -16,7 +16,7 @@ const loadStations = async (req, res, next) => {
   let rowCount = 0;
   let errCount = 0;
   let isHeaderRow = true;
-  const csvFilePath = '../data/stops.txt';
+  const csvFilePath = '/data/stops.txt';
 
   // verify that the station csv file exists
   if (fs.existsSync(csvFilePath)) {
@@ -30,20 +30,23 @@ const loadStations = async (req, res, next) => {
       } else {
         console.error('Error dropping collection', err);
         next(err);
+        return;
       }
     }
   } else {
     const err = new Error (`File ${csvFilePath} not found`);
     err.status = 400;
     next(err);
+    return;
   }
 
   // read CSV file 
-  fs.createReadStream('../data/stops.txt')
+  fs.createReadStream(csvFilePath)
     .pipe(csv())
     .on('data', async (data) => {
       // skip first header row
       if (isHeaderRow) {
+        console.log('Skipping header row');
         isHeaderRow = false;
         return;
       }
