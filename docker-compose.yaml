@@ -22,6 +22,7 @@ services:
       PORT: 3000
       MONGODB_URI: mongodb://mongo_db:27017
       DB_NAME: mot-gov-il
+      MOT_KEY: ${MOT_KEY}
     depends_on: 
       - mongo_db
     volumes:

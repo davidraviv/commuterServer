@@ -14,9 +14,11 @@ require('./utils/initDB')();
 const echoRoute = require('./routes/echo.route');
 const adminRoute = require('./routes/admin.route');
 const stationsRoute = require('./routes/stations.route');
+const linesRoute = require('./routes/lines.route');
 app.use('/echo', echoRoute);
 app.use('/admin', adminRoute);
 app.use('/stations', stationsRoute);
+app.use('/lines', linesRoute);
 
 //404 handler and pass to error handler
 app.use((req, res, next) => {

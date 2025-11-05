@@ -1,42 +1,50 @@
-const Station = require('../models/station.model');
-
-const DEFAULT_MAX_DISTANCE = 300
-
+const axios = require('axios');
+const MOT_KEY = process.env.MOT_KEY;
 
 // file deepcode ignore NoRateLimitingForExpensiveWebOperation: I added limiter in the admin.router.js file
-const getStations = async (req, res, next) => {
+const getLines = async (req, res, next) => {
   // extract lon and lat query params
-  const lon = req?.query?.lon;
-  const lat = req?.query?.lat;
-  const distance = req?.query?.distance || DEFAULT_MAX_DISTANCE; // meters
-  console.log(`Searching for stations near lon=${lon}, lat=${lat} with max distance of ${distance} meters`);
+  const code = req?.query?.code;
   
-  // return http 400 if lon or lat are missing
-  if (!lon || !lat) {
-    const err = new Error (`lon and lat query params are missing`);
+  // return http 400 if code is missing
+  if (!code) {
+    const err = new Error (`code query params are missing`);
     err.status = 400;
     return next(err);
   }
+  console.log(`Searching for lines in station ${code}`);
 
-  // search in mongoDB stations with approximate location of 300 meters from lon and lat
-  const stations = await Station.find({
-    location: {
-      $near: {
-        $geometry: {
-          type: "Point" ,
-          coordinates: [ lon , lat ]
-        },
-        $maxDistance: distance // meters
-     }
-   }
-  });
+  const lines = [];
 
-  if (stations) {
-    console.log(`Found total of ${stations.length} stations`);
-    console.log(`Stations: ${JSON.stringify(stations)}`)
-    res.status(200).json(stations);
+  const url = `http://moran.mot.gov.il:110/Channels/HTTPChannel/SmQuery/2.8/json?Key=${MOT_KEY}&MonitoringRef=${code}`
+  try {
+    const response = await axios.get(url);
+    console.log(`@@@ response: ${JSON.stringify(response)}`);
+    if (response?.data) {
+      const rawLines = response.Siri.ServiceDelivery.StopMonitoringDelivery;
+      for (const line of rawLines) {
+        lines.push({
+          number: line.MonitoredStopVisit.MonitoredVehicleJourney.PublishedLineName,
+          confidence: line.MonitoredStopVisit.MonitoredVehicleJourney.ConfidenceLevel,
+          order: line.MonitoredStopVisit.MonitoredVehicleJourney.MonitoredCall.Order,
+          time: line.MonitoredStopVisit.MonitoredVehicleJourney.MonitoredCall.ExpectedArrivalTime,
+          distance: line.MonitoredStopVisit.MonitoredVehicleJourney.MonitoredCall.DistanceFromStop
+        });
+      }
+    } else {
+      console.log(`No data found for station ${code}`);
+    }
+  } catch (err) {
+    console.log(`Error: ${JSON.stringify(err)}`);
+    return next(err)
+  }
+
+  if (lines) {
+    console.log(`Found total of ${lines.length} stations`);
+    console.log(`Stations: ${JSON.stringify(lines)}`)
+    res.status(200).json(lines);
   } else {
-    const err = new Error ('No station found');
+    const err = new Error ('No lines found');
     err.status = 404;
     return next(err);
   }
@@ -44,7 +52,7 @@ const getStations = async (req, res, next) => {
 
 
 module.exports = {
-  getStations,
+  getLines,
 };
 
 
